@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corazón de Líneas de Colores</title>
+    <style>
+        /* Centramos el canvas en la pantalla con un fondo oscuro */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0b0b1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            background-color: #0b0b1a;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- El lienzo donde dibujaremos el corazón -->
+    <canvas id="lienzoCorazon"></canvas>
+
+    <script>
+        const canvas = document.getElementById('lienzoCorazon');
+        const ctx = canvas.getContext('2d');
+
+        // Ajustamos el tamaño del lienzo al tamaño de la ventana
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Variables de configuración
+        const centroX = canvas.width / 2;
+        const centroY = canvas.height / 2;
+        const escala = 15; // Controla el tamaño del corazón
+        let paso = 0;      // Controla la animación y los cambios de color
+
+        function dibujarCorazon() {
+            // Limpiamos el lienzo en cada cuadro de animación con un efecto de rastro (opacidad)
+            ctx.fillStyle = 'rgba(11, 11, 26, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.lineWidth = 2;
+
+            // Comenzamos una nueva ruta de dibujo
+            ctx.beginPath();
+
+            // Dibujamos el corazón calculando puntos a lo largo de un ciclo (0 a 2*PI)
+            for (let t = 0; t <= Math.PI * 2; t += 0.01) {
+                // Ecuación matemática paramétrica del corazón
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+
+                // Traducimos las coordenadas matemáticas a píxeles en la pantalla
+                const pixelX = centroX + x * escala;
+                const pixelY = centroY - y * escala; // Restamos porque en Canvas el eje Y va hacia abajo
+
+                if (t === 0) {
+                    ctx.moveTo(pixelX, pixelY);
+                } else {
+                    ctx.lineTo(pixelX, pixelY);
+                }
+            }
+
+            // Cambiamos el color dinámicamente usando el formato HSL (Tono, Saturación, Luminosidad)
+            // 'paso' incrementa gradualmente para recorrer todo el arcoíris
+            ctx.strokeStyle = `hsl(${paso}, 100%, 60%)`;
+            ctx.stroke();
+
+            // Incrementamos la variable para cambiar el color en el siguiente cuadro
+            paso = (paso + 1) % 360;
+
+            // Llamamos a la función repetidamente para crear una animación fluida
+            requestAnimationFrame(dibujarCorazon);
+        }
+
+        // Iniciamos el bucle de dibujo
+        dibujarCorazon();
+
+        // Si el usuario cambia el tamaño de la ventana, reajustamos el lienzo
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
+
